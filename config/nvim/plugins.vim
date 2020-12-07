@@ -22,79 +22,66 @@ call plug#begin('~/.config/nvim/plugged')
 
 " === Infrastructure Plugins ===
 "
-" Linting
-Plug 'w0rp/ale'
+" Language Server Protocol and completion
+Plug 'neovim/nvim-lspconfig'
+Plug 'ajh17/VimCompletesMe'
 
-" Intellisense Engine
-Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
+" Linting
+Plug 'dense-analysis/ale'
+
+" Snippit support
+Plug 'hrsh7th/vim-vsnip'
+Plug 'hrsh7th/vim-vsnip-integ'
 
 " Fuzzy finding
 Plug 'junegunn/fzf', { 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
 
-" Snippet support
-Plug 'Shougo/neosnippet'
-Plug 'Shougo/neosnippet-snippets'
-
-" Print function signatures in echo area
-Plug 'Shougo/echodoc.vim'
+Plug 'gcmt/taboo.vim'
 
 " === Git Plugins === "
 " Enable git changes to be shown in sign column
 Plug 'mhinz/vim-signify'
 Plug 'tpope/vim-fugitive'
-Plug 'tommcdo/vim-fubitive'
-
-" Ember HTMLbars syntax highlighting
-Plug 'joukevandermaas/vim-ember-hbs'
 
 " Not exactly minimal but I don't want to have to think about language support
 " right now
 Plug 'sheerun/vim-polyglot'
 
+" Ember HTMLbars syntax highlighting
+Plug 'joukevandermaas/vim-ember-hbs'
+
 Plug 'tpope/vim-rails'
-
-" Improved syntax highlighting and indentation
-Plug 'othree/yajs.vim'
-
-" === UI === "
-Plug 'tpope/vim-vinegar'
 
 Plug 'junegunn/goyo.vim'
 
 " Colorscheme
-Plug 'morhetz/gruvbox'
-Plug 'fxn/vim-monochrome'
+Plug 'ludamillion/min-fedu'
 Plug '~/projects/tachyon.vim'
-Plug '~/projects/minimal-fedu.vim'
 
 " Note taking
 Plug 'vimwiki/vimwiki'
-
-" Session Managment
-Plug 'xolox/vim-misc'
-Plug 'xolox/vim-session'
+Plug 'alok/notational-fzf-vim'
 
 " Convenience
+Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-dispatch'
 
-" Undo Tree
-Plug 'simnalamburt/vim-mundo'
+Plug 'justinmk/vim-sneak'
 
-Plug 'terryma/vim-expand-region'
-Plug 'jiangmiao/auto-pairs'
-Plug 'adelarsq/vim-matchit'
-Plug 'ntpeters/vim-better-whitespace'
-" Tags
-Plug 'majutsushi/tagbar'
-Plug 'ludovicchabant/vim-gutentags'
+" Auto save
+Plug '907th/vim-auto-save'
+
+" Opt-in autopairing
+Plug 'tranvansang/vim-close-pair'
 
 " Spelling
 Plug 'kamykn/spelunker.vim'
 
-" Smoother Terminal experience
+" Terminal ease of use
 Plug 'kassio/neoterm'
 
 " Initialize plugin system
