@@ -2,6 +2,7 @@ scriptencoding utf-8
 source ~/.config/nvim/plugins.vim
 
 let mapleader="\<Space>"
+let maplocalleader = "\<F7>"
 
 " Set options {{{
 set autoindent                                                " Always set autoindenting on
@@ -269,14 +270,22 @@ imap <expr> <C-l> vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
 smap <expr> <C-l> vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
 
 " === Notes === 
-let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki', 'syntax': 'markdown', 'ext': '.md'}]
+" let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki', 'syntax': 'markdown', 'ext': '.md'}]
+let g:waikiki_wiki_roots = ['~/Dropbox/vimwiki']
+let g:waikiki_default_maps = 1
+
+command! OpenWikiTab execute '$tab ' . g:waikiki_wiki_roots[0] . ''<cr>
+
+nnorema <silent> <leader>ww :OpenWikiTab<cr>
+  " exec 'mksession! ' . g:sessions_dir . '/' . name
+
 let g:nv_search_paths = ['~/Dropbox/vimwiki', '~/wiki']
 nnoremap <silent> <leader>n :NV<cr>
 
 " === AutoSave === "
 let g:auto_save        = 1
 let g:auto_save_silent = 1
-let g:auto_save_events = ['BufLeave', 'CursorHold', 'FocusLost']
+" let g:auto_save_events = ['BufLeave', 'CursorHold', 'FocusLost']
 
 " === Pairify === "
 let g:close_pair_key = '<C-c>'
@@ -514,7 +523,7 @@ nnoremap ; :
 nnoremap <Leader>; ;
 
 " Open :help in a new tab
-command! -nargs=? -complete=help Helptab tab help <args>
+command! -nargs=? -complete=help Helptab $tab help <args>
 cnoreabbrev <expr> ht getcmdtype() == ':' && getcmdline() == 'ht' ? 'Helptab' : 'ht'
 
 "move to the split in the direction shown, or create a new split
@@ -570,15 +579,17 @@ nnoremap <silent> <leader>zg :call spelunker#execute_with_target_word('spellgood
 augroup TerminalBehavior
   " Start terminal in insert mode
   autocmd!
-  au TermEnter * :startinsert
-  au TermLeave * :stopinsert
+  au FileType neoterm :startinsert
+  au FileType neoterm :stopinsert
   nnoremap <silent> <leader>t <cmd>Ttoggle<CR>
-  nnoremap <silent> <leader>T <cmd>:tab Tnew<CR>
+  nnoremap <silent> <leader>T <cmd>:$tab Tnew<CR>
 
   highlight! TermCursor ctermfg=LightBlue guifg=LightBlue
 
+  autocmd Filetype neoterm setlocal nonumber norelativenumber
+
   " Quickly drop back to normal mode in terminal mode
-  tnoremap <C-g> <C-\><C-n>
+  tnoremap <buffer> <esc> <C-\><C-n>
 
   " Move between windows exactly the same way as usual
   tnoremap <silent> <C-w>h <C-\><C-n>:call WinMove('h')<cr>
@@ -607,7 +618,7 @@ function! s:BufferCount() abort
   return len(filter(range(1, bufnr('$')), 'bufwinnr(v:val) != -1'))
 endfunction
 
-function! <SID>ListToggle(list) abort
+function! ListToggle(list) abort
   let buffer_count_before = s:BufferCount()
 
   if a:list ==? 'quick'
@@ -626,15 +637,15 @@ function! <SID>ListToggle(list) abort
   endif
 endfunction
 
-nnoremap <silent> <leader>l :call <SID>ListToggle('loc')<cr>
-nnoremap <silent> <leader>q :call <SID>ListToggle('quick')<cr>
+nnoremap <silent> <leader>l :call ListToggle('loc')<cr>
+nnoremap <silent> <leader>q :call ListToggle('quick')<cr>
 
 autocmd! InsertEnter * set nohlsearch
 
 autocmd! FileType help wincmd H
 
-nmap <silent> <leader>hg :call <SID>SynStack()<CR>
-function! <SID>SynStack()
+nnoremap <silent> <leader>hg :call SynStack()<CR>
+function! SynStack()
   if !exists("*synstack")
     return
   endif

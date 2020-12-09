@@ -58,9 +58,11 @@ Plug 'junegunn/goyo.vim'
 " Colorscheme
 Plug 'ludamillion/min-fedu'
 Plug '~/projects/tachyon.vim'
+Plug 'lifepillar/vim-gruvbox8'
 
 " Note taking
-Plug 'vimwiki/vimwiki'
+" Plug 'lervag/wiki.vim'
+Plug 'fcpg/vim-waikiki'
 Plug 'alok/notational-fzf-vim'
 
 " Convenience
