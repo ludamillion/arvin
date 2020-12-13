@@ -4,9 +4,6 @@ if [ -d $HOME/.zsh ]; then
   done
 fi
 
-eval "$(rbenv init -)"
-eval "$(nodenv init -)"
-
 export TERM=xterm-256color-italic
 
 export EDITOR='nvim'
@@ -18,6 +15,12 @@ export HISTSIZE=25000
 export SAVEHIST=$HISTSIZE
 export HISTFILE="$HOME/.zsh_history"
 export HISTORY_IGNORE="(ls|cd|pwd|exit|cd ..|sic|sic *)"
+export KEYTIMEOUT=1
+
+export AWSREGION="us-west-2"
+export CFUSER="linglis"
+export VOLS_HOME=/Users/q1017687/work/vols_home
+export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
 
 setopt extended_history
 setopt hist_expire_dups_first
@@ -44,11 +47,6 @@ bindkey '^S' history-incremental-search-forward
 # Accept the presented search result
 bindkey '^Y' accept-search
 
-# Use the arrow keys to search forward/backward through the history,
-# using the first word of what's typed in as search word
-bindkey '^[[A' history-search-backward
-bindkey '^[[B' history-search-forward
-
 # Use the same keys as bash for history forward/backward: Ctrl+N/Ctrl+P
 bindkey '^P' history-search-backward
 bindkey '^N' history-search-forward
@@ -61,29 +59,30 @@ bindkey '^[[3~' delete-char
 bindkey '^A' beginning-of-line
 bindkey '^E' end-of-line
 
-# Disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
+# Disable marking untracked files under VCS as dirty.
+# This makes repository status check for large repositories
 # much, much faster.
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 
 # Set location of z installation
 . /usr/local/etc/profile.d/z.sh
 
-# Base16 Shell
-BASE16_SHELL="$HOME/.config/base16-shell/"
-[ -n "$PS1" ] && \
-    [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
-        eval "$("$BASE16_SHELL/profile_helper.sh")"
+# Initialize asdf
+. $HOME/.asdf/asdf.sh
+
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+fi
 
 # Set Purer as prompt
 autoload -U promptinit; promptinit
 prompt purer
 
-# Aliases and env variables for kubernetes
-source /Users/q1017687/.kube_bashrc
-
 # Enable zsh-completions
 fpath=(/usr/local/share/zsh-completions $fpath)
+
+# append completions to fpath
+fpath=(${ASDF_DIR}/completions $fpath)
 
 autoload -Uz compinit; compinit
 source <(antibody init)

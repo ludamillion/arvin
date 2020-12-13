@@ -24,7 +24,7 @@ call plug#begin('~/.config/nvim/plugged')
 "
 " Language Server Protocol and completion
 Plug 'neovim/nvim-lspconfig'
-Plug 'ajh17/VimCompletesMe'
+Plug 'nvim-lua/completion-nvim'
 
 " Linting
 Plug 'dense-analysis/ale'
@@ -57,8 +57,7 @@ Plug 'junegunn/goyo.vim'
 
 " Colorscheme
 Plug 'ludamillion/min-fedu'
-Plug '~/projects/tachyon.vim'
-Plug 'lifepillar/vim-gruvbox8'
+Plug '~/code/limin'
 
 " Note taking
 " Plug 'lervag/wiki.vim'

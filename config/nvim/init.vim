@@ -2,7 +2,7 @@ scriptencoding utf-8
 source ~/.config/nvim/plugins.vim
 
 let mapleader="\<Space>"
-let maplocalleader = "\<F7>"
+let maplocalleader = "\\"
 
 " Set options {{{
 set autoindent                                                " Always set autoindenting on
@@ -10,7 +10,7 @@ set autoread                                                  " Automatically re
 set autowrite                                                 " automatically write files when switching buffers
 set backspace=indent,eol,start                                " Make backspace behave properly in insert mode
 set clipboard=unnamedplus                                     " Use system clipboard; requires has('unnamedplus') to be 1
-set completeopt=menu,menuone,noinsert,noselect
+set completeopt=menu,menuone,noinsert,noselect,preview
 set foldmethod=syntax foldnestmax=10 nofoldenable foldlevel=1 " Fold by syntax up to depth 10 but not by default
 set grepprg=rg\ --vimgrep                                     " User Ripgrep for grep commands
 set hidden                                                    " Hide buffers instead of closing them even if they contain unwritten changes
@@ -19,7 +19,7 @@ set inccommand=split                                          " Show split and l
 set incsearch                                                 " Incremental search highlight
 set lazyredraw                                                " Lazily redraw screen while executing macros, and other commands
 set list
-set listchars=tab:⊢\ ,trail:░
+set listchars=tab:⊢\ ,trail:―,extends:…,precedes:…
 set matchpairs+=<:>
 set number relativenumber                                 " Show relative line numbers by default
 set noshowmode
@@ -55,134 +55,22 @@ xnoremap <silent> <c-j> :m'>+<cr>gv=gv
 " ===                           PLUGIN SETUP                               === "
 " ============================================================================ "
 
-" lua << END
-"   require'lspconfig'.solargraph.setup{}
-"   require'lspconfig'.tsserver.setup{}
-"   require'lspconfig'.cssls.setup{}
-"   require'lspconfig'.html.setup{}
-"   require'lspconfig'.vimls.setup{}
-" END
+lua require('lua_config')
 
-" nnoremap <silent> gD <cmd>lua vim.lsp.buf.declaration()<CR>
-" nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<CR>
-" nnoremap <silent> K  <cmd>lua vim.lsp.buf.hover()<CR>
-" nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<CR>
-" nnoremap <silent> gR <cmd>lua vim.lsp.buf.rename()<CR>
-:lua << EOF
-  local nvim_lsp = require('lspconfig')
+let g:completion_chain_complete_list = [
+    \{'complete_items': ['lsp']},
+    \{'complete_items': ['snippet']},
+    \{'mode': '<c-p>'},
+    \{'mode': '<c-n>'}
+\]
+let g:completion_enable_snippet = 'vim-vsnip'
+let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
 
-  local on_attach = function(_, bufnr)
-    local opts = { noremap=true, silent=true }
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>xr', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>xd', '<cmd>lua vim.lsp.util.show_line_diagnostics()<CR>', opts)
-  end
+imap <c-j> <Plug>(completion_next_source)
+imap <c-k> <Plug>(completion_prev_source)
 
-  vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-    vim.lsp.diagnostic.on_publish_diagnostics, {
-      -- This will disable virtual text, like doing:
-      -- let g:diagnostic_enable_virtual_text = 0
-      virtual_text = true,
-
-      -- This is similar to:
-      -- let g:diagnostic_show_sign = 1
-      -- To configure sign display,
-      --  see: ":help vim.lsp.diagnostic.set_signs()"
-      signs = true,
-
-      -- This is similar to:
-      -- "let g:diagnostic_insert_delay = 1"
-      update_in_insert = false,
-    }
-  )
-
-  nvim_lsp.diagnosticls.setup {
-    on_attach = on_attach_vim,
-    filetypes = {
-      "javascript",
-      "javascriptreact",
-      "typescript",
-      "typescriptreact",
-      "typescript.tsx",
-      "css",
-      "scss",
-      "markdown",
-      -- "pandoc",
-    },
-    init_options = {
-      linters = {
-        eslint = {
-          command = "eslint",
-          rootPatterns = {".git", ".eslintrc.cjs", ".eslintrc", ".eslintrc.json", ".eslintrc.js"},
-          debounce = 100,
-          args = {"--stdin", "--stdin-filename", "%filepath", "--format", "json"},
-          sourceName = "eslint",
-          parseJson = {
-            errorsRoot = "[0].messages",
-            line = "line",
-            column = "column",
-            endLine = "endLine",
-            endColumn = "endColumn",
-            message = "[eslint] ${message} [${ruleId}]",
-            security = "severity",
-          },
-          securities = {[2] = "error", [1] = "warning"},
-        },
-        markdownlint = {
-          command = "markdownlint",
-          rootPatterns = {".git"},
-          isStderr = true,
-          debounce = 100,
-          args = {"--stdin"},
-          offsetLine = 0,
-          offsetColumn = 0,
-          sourceName = "markdownlint",
-          securities = {undefined = "hint"},
-          formatLines = 1,
-          formatPattern = {"^.*:(\\d+)\\s+(.*)$", {line = 1, column = -1, message = 2}},
-        },
-      },
-      filetypes = {
-        javascript = "eslint",
-        javascriptreact = "eslint",
-        typescript = "eslint",
-        typescriptreact = "eslint",
-        ["typescript.tsx"] = "eslint",
-        markdown = "markdownlint",
-        -- pandoc = "markdownlint",
-      },
-      formatters = {
-        prettierEslint = {
-          command = "prettier-eslint",
-          args = {"--stdin"},
-          rootPatterns = {".eslintrc.cjs", ".eslintrc", ".eslintrc.json", ".eslintrc.js", ".git"},
-        },
-        prettier = {command = "prettier", args = {"--stdin-filepath", "%filename"}},
-      },
-      formatFiletypes = {
-        css = "prettier",
-        javascript = "prettierEslint",
-        javascriptreact = "prettierEslint",
-        json = "prettier",
-        scss = "prettier",
-        typescript = "prettierEslint",
-        typescriptreact = "prettierEslint",
-        ["typescript.tsx"] = "prettierEslint",
-      },
-    },
-  }
-
-  local servers = {'vimls','tsserver', 'cssls', 'html', 'solargraph'}
-  for _, lsp in ipairs(servers) do
-    nvim_lsp[lsp].setup {
-      on_attach = on_attach,
-    }
-  end
-EOF
+inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 command! Format execute 'lua vim.lsp.buf.formatting()'
 
@@ -212,7 +100,8 @@ let g:ale_linters = {
   \ 'rspec': ['rubocop'],
   \ 'handlebars': ['ember-template-lint'],
   \ 'css': ['prettier'],
-  \ 'scss': ['stylelint']
+  \ 'scss': ['stylelint'],
+  \ 'lua': ['luac']
   \ }
 
 let g:ale_fixers = {
@@ -285,7 +174,6 @@ nnoremap <silent> <leader>n :NV<cr>
 " === AutoSave === "
 let g:auto_save        = 1
 let g:auto_save_silent = 1
-" let g:auto_save_events = ['BufLeave', 'CursorHold', 'FocusLost']
 
 " === Pairify === "
 let g:close_pair_key = '<C-c>'
@@ -354,7 +242,7 @@ if (has("termguicolors"))
 endif
 
 set background=dark
-colorscheme min_fedu
+colorscheme limin
 
 " Call method on window enter
 augroup WindowManagement
@@ -513,6 +401,8 @@ nnoremap <silent> <leader>ev :$tabnew $MYVIMRC<cr>
 command! RefreshConfig source $MYVIMRC <bar> echo "Refreshed vimrc!"
 nnoremap <silent> <leader>sv :RefreshConfig<cr>
 
+nnoremap <silent> <leader>sf :so %<cr>
+
 nnoremap <silent> <leader>+ :tab split<CR>
 nnoremap <leader>= <C-w>=
 
@@ -589,7 +479,7 @@ augroup TerminalBehavior
   autocmd Filetype neoterm setlocal nonumber norelativenumber
 
   " Quickly drop back to normal mode in terminal mode
-  tnoremap <buffer> <esc> <C-\><C-n>
+  tnoremap <c-g> <C-\><C-n>
 
   " Move between windows exactly the same way as usual
   tnoremap <silent> <C-w>h <C-\><C-n>:call WinMove('h')<cr>
