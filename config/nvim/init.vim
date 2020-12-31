@@ -10,7 +10,7 @@ set autoread                                                  " Automatically re
 set autowrite                                                 " automatically write files when switching buffers
 set backspace=indent,eol,start                                " Make backspace behave properly in insert mode
 set clipboard=unnamedplus                                     " Use system clipboard; requires has('unnamedplus') to be 1
-set completeopt=menu,menuone,noinsert,noselect,preview
+set completeopt=menu,menuone,noinsert,noselect
 set foldmethod=syntax foldnestmax=10 nofoldenable foldlevel=1 " Fold by syntax up to depth 10 but not by default
 set grepprg=rg\ --vimgrep                                     " User Ripgrep for grep commands
 set hidden                                                    " Hide buffers instead of closing them even if they contain unwritten changes
@@ -21,7 +21,7 @@ set lazyredraw                                                " Lazily redraw sc
 set list
 set listchars=tab:⊢\ ,trail:―,extends:…,precedes:…
 set matchpairs+=<:>
-set number relativenumber                                 " Show relative line numbers by default
+set number relativenumber                                     " Show relative line numbers by default
 set noshowmode
 set noswapfile                                                " Disable swap files
 set nowrap                                                    " Disable soft wrap for lines
@@ -63,8 +63,9 @@ let g:completion_chain_complete_list = [
     \{'mode': '<c-p>'},
     \{'mode': '<c-n>'}
 \]
+
 let g:completion_enable_snippet = 'vim-vsnip'
-let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
+let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy', 'all']
 
 imap <c-j> <Plug>(completion_next_source)
 imap <c-k> <Plug>(completion_prev_source)
@@ -95,18 +96,15 @@ inoremap <C-d>     <C-x><C-k>
 
 -" Ale Setup
 let g:ale_linters = {
-  \ 'javascript': ['eslint'],
   \ 'ruby': ['rubocop'],
   \ 'rspec': ['rubocop'],
   \ 'handlebars': ['ember-template-lint'],
-  \ 'css': ['prettier'],
   \ 'scss': ['stylelint'],
   \ 'lua': ['luac']
   \ }
 
 let g:ale_fixers = {
 \  '*': ['remove_trailing_lines', 'trim_whitespace'],
-\  'javascript': ['eslint'],
 \  'scss': ['stylelint'],
 \  'ruby': ['rubocop']
 \}
@@ -116,7 +114,6 @@ let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 
 let g:ale_ruby_rubocop_executable = 'bin/rubocop'
-let g:ale_javascript_eslint_executable = 'node_modules/.bin/eslint'
 
 let g:ale_sign_error = '●'
 let g:ale_sign_warning = '●'
@@ -128,26 +125,9 @@ let g:ale_set_highlights = 0
 " let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_insert_leave = 0
 
-" === FZF === "
+" === Clap === "
 
-command! -bang ProjectFiles call fzf#vim#files(getcwd(), <bang>0)
-
-" An action can be a reference to a function that processes selected lines
-function! s:build_quickfix_list(lines)
-  call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
-  copen
-  cc
-endfunction
-
-let g:fzf_action = {
-  \ 'ctrl-q': function('s:build_quickfix_list'),
-  \ 'ctrl-t': 'tab split',
-  \ 'ctrl-x': 'split',
-  \ 'ctrl-v': 'vsplit' }
-
-" Default fzf layout
-" - Popup window
-let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+let g:clap_layout = { 'relative': 'editor' }
 
 "Close preview window when completion is done.
 autocmd! CompleteDone * if pumvisible() == 1 | pclose | endif
@@ -163,9 +143,9 @@ smap <expr> <C-l> vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
 let g:waikiki_wiki_roots = ['~/Dropbox/vimwiki']
 let g:waikiki_default_maps = 1
 
-command! OpenWikiTab execute '$tab ' . g:waikiki_wiki_roots[0] . ''<cr>
+command! OpenWikiTab execute('$tabedit ' . g:waikiki_wiki_roots[0] . '/index.md')
 
-nnorema <silent> <leader>ww :OpenWikiTab<cr>
+nnoremap <silent> <leader>ww :OpenWikiTab<CR>
   " exec 'mksession! ' . g:sessions_dir . '/' . name
 
 let g:nv_search_paths = ['~/Dropbox/vimwiki', '~/wiki']
@@ -201,24 +181,25 @@ function! GitInfo()
 endfunction
 
 " Function: display errors from Ale in statusline
-function! LinterStatus() abort
-  let l:counts = ale#statusline#Count(bufnr(''))
-  let l:all_errors = l:counts.error + l:counts.style_error
-  let l:all_non_errors = l:counts.total - l:all_errors
-  return l:counts.total == 0 ? '' : printf('[%d/%d]', l:all_non_errors, l:all_errors)
+" function! LinterStatus() abort
+"   let l:counts = ale#statusline#Count(bufnr(''))
+"   let l:all_errors = l:counts.error + l:counts.style_error
+"   let l:all_non_errors = l:counts.total - l:all_errors
+"   return l:counts.total == 0 ? '' : printf('[%d/%d]', l:all_non_errors, l:all_errors)
+" endfunction
+
+function! LspStatus() abort
+  let sl = ''
+  if luaeval('not vim.tbl_isempty(vim.lsp.buf_get_clients(0))')
+    let sl.='E:'
+    let sl.='%{luaeval("vim.lsp.diagnostic.get_count(vim.fn.bufnr('%'), [[Error]])")}'
+    let sl.=' W:'
+    let sl.='%{luaeval("vim.lsp.diagnostic.get_count(vim.fn.bufnr('%'), [[Warning]])")}'
+  else
+    let sl.='off'
+  endif
+  return sl
 endfunction
-    " function! LspStatus() abort
-    "   let sl = ''
-    "   if luaeval('not vim.tbl_isempty(vim.lsp.buf_get_clients(0))')
-    "     let sl.='E:'
-    "     let sl.='%{luaeval("vim.lsp.diagnostic.get_count(vim.fn.bufnr('%'), [[Error]])")}'
-    "     let sl.=' W:'
-    "     let sl.='%{luaeval("vim.lsp.diagnostic.get_count(vim.fn.bufnr('%'), [[Warning]])")}'
-    "   else
-    "       let sl.=' off'
-    "   endif
-    "   return sl
-    " endfunction
 
 function! LspStatusSymbol() abort
   if luaeval('vim.lsp.buf.server_ready()')
@@ -229,10 +210,11 @@ function! LspStatusSymbol() abort
 endfunction
 
 set statusline=
-set statusline+=%#WildMenu#\ %.36{GitInfo()}ᓚᘏᗢ\ %#Normal#\ %t
+set statusline+=%.36{GitInfo()}ᓚᘏᗢ\ %t
 set statusline+=%=
 set statusline+=%q%m\[%{&filetype}\|%l:%c\]
-set statusline+=%#WildMenu#%{LinterStatus()}\ lsp[%{LspStatusSymbol()}]
+set statusline+=\ LSP\ [%{LspStatus()}\ %{LspStatusSymbol()}]
+" set statusline+=%#WildMenu#%{LinterStatus()}\ lsp[%{LspStatusSymbol()}]
 
 "}}}
 
@@ -242,7 +224,7 @@ if (has("termguicolors"))
 endif
 
 set background=dark
-colorscheme limin
+colorscheme liminal
 
 " Call method on window enter
 augroup WindowManagement
@@ -315,9 +297,13 @@ map T <Plug>Sneak_T
 let g:sneak#s_next = 1
 "
 " Tab manipulation
-noremap <silent> <leader>tn :tabnew<CR>
-noremap <silent> <leader>tc :tabclose<CR>
-noremap <silent> <leader>tm :tabmove<Space><C-r>=input("Where to bub?: ")<CR><CR>
+command! TabHomeOnFile execute 'tcd ' . expand('%:h')
+
+nnoremap <leader>td :TabHomeOnFile<CR>
+nnoremap <silent> <leader>tn :$tabnew<CR>
+nnoremap <silent> <leader>tc :tabclose<CR>
+nnoremap <silent> <leader>tm :tabmove<Space><C-r>=input("Where to bub? ")<CR><CR>
+
 
 " Tab switching with <leader>number
 noremap <silent> <leader>1 1gt
@@ -345,8 +331,10 @@ augroup END
 
 augroup MarkdownEditing
   autocmd!
-  autocmd BufWinEnter *.md set wrap
+  autocmd BufWinEnter *.md set wrap nonumber norelativenumber
   autocmd BufWinLeave *.md set nowrap
+
+  lua require('completion').on_attach()
 augroup END
 
 au BufReadPost *.hbs set syntax=handlebars.html
@@ -355,15 +343,13 @@ au BufReadPost *.hbs set syntax=handlebars.html
 " ============================================================================ "
 "
 " === FZF shorcuts === "
-command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
+" command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
 
-nnoremap <silent> <leader>, :Buffers<CR>
-nnoremap <silent> <leader>p :ProjectFiles<CR>
-nnoremap <silent> <leader>s :Rg<CR>
-nnoremap <silent> // :BLines<CR>
-nnoremap <silent> ?? :Lines<CR>
-
-nnoremap <silent> <c-p> :GFiles<CR>
+nnoremap <silent> <leader>, :Clap buffers<CR>
+nnoremap <silent> <leader>p :Clap gfiles<CR>
+nnoremap <silent> <leader>s :Clap grep<CR>
+nnoremap <silent> // :Clap blines<CR>
+nnoremap <silent> ?? :Clap lines<CR>
 
 nnoremap <silent> <Leader>d :Lexplore<CR>
 nnoremap <silent> <Leader>f :Vexplore<CR>
@@ -462,6 +448,17 @@ nnoremap <silent> <leader>zl :call spelunker#correct_all_from_list()<cr>
 nnoremap <silent> <leader>zf :call spelunker#correct_all_feeling_lucky()<cr>
 nnoremap <silent> <leader>zg :call spelunker#execute_with_target_word('spellgood')<cr>
 
+function! BackgroundToggle() abort
+  if &background ==? 'dark'
+    set background=light
+  else
+    set background=dark
+  endif
+endfunction 
+
+" Toggle background
+nnoremap <silent> <leader>bg :call BackgroundToggle()<CR>
+
 " ============================================================================ "
 " ===                                 MISC.                                === "
 " ============================================================================ "
@@ -530,7 +527,8 @@ endfunction
 nnoremap <silent> <leader>l :call ListToggle('loc')<cr>
 nnoremap <silent> <leader>q :call ListToggle('quick')<cr>
 
-autocmd! InsertEnter * set nohlsearch
+autocmd! InsertEnter * set nohlsearch nocursorline
+autocmd! InsertLeave * set cursorline
 
 autocmd! FileType help wincmd H
 

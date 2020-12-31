@@ -35,7 +35,7 @@ Plug 'hrsh7th/vim-vsnip-integ'
 
 " Fuzzy finding
 Plug 'junegunn/fzf', { 'do': './install --bin' }
-Plug 'junegunn/fzf.vim'
+Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary' }
 
 Plug 'gcmt/taboo.vim'
 
@@ -56,11 +56,9 @@ Plug 'tpope/vim-rails'
 Plug 'junegunn/goyo.vim'
 
 " Colorscheme
-Plug 'ludamillion/min-fedu'
-Plug '~/code/limin'
+Plug '~/code/liminal'
 
 " Note taking
-" Plug 'lervag/wiki.vim'
 Plug 'fcpg/vim-waikiki'
 Plug 'alok/notational-fzf-vim'
 
