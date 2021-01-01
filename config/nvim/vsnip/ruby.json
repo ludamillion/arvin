@@ -1,0 +1,23 @@
+{
+  "Bind Pry": {
+    "prefix": "pry",
+    "body": [
+      "binding.pry"
+    ]
+  },
+  "Braced Each": {
+    "prefix": "each",
+    "body": [
+      "each { |$1| $2 }"
+    ]
+  },
+  "Block Each": {
+    "prefix": "eachd",
+    "body": [
+      "each do |$1|",
+      "  $2",
+      "end"
+    ]
+  }
+}
+

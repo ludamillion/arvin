@@ -1,0 +1,50 @@
+{
+  "Call super": {
+    "prefix": "super",
+    "body": [
+      "this._super(...arguments);"
+    ]
+  },
+  "Console log": {
+    "prefix": "log",
+    "body": [
+      "console.log($1);"
+    ]
+  },
+  "Console log string": {
+    "prefix": "logs",
+    "body": [
+      "console.log('$1');"
+    ]
+  },
+  "Console log table": {
+    "prefix": "logt",
+    "body": [
+      "console.table($1);"
+    ]
+  },
+  "Arrow function": {
+    "prefix": "af",
+    "body": [
+      "const ${1:function} = (${2:args}) => {",
+        "  $3",
+        "}"
+    ]
+  },
+  "Plain function": {
+    "prefix": "fn",
+    "body": [
+      "${1:function} (${2:args}) {",
+      "  $3",
+      "}"
+    ]
+  },
+  "Export default function": {
+    "prefix": "edf",
+    "body": [
+      "export default function(${1}) {",
+      "  $2",
+      "}"
+    ]
+  }
+}
