@@ -50,24 +50,27 @@ Plug 'sheerun/vim-polyglot'
 
 " Ember HTMLbars syntax highlighting
 Plug 'joukevandermaas/vim-ember-hbs'
-
-Plug 'tpope/vim-rails'
+Plug 'mattn/emmet-vim'
 
 Plug 'junegunn/goyo.vim'
 
 " Colorscheme
 Plug '~/code/liminal'
 
+Plug 'norcalli/nvim-colorizer.lua'
+
 " Note taking
 Plug 'fcpg/vim-waikiki'
 Plug 'alok/notational-fzf-vim'
 
-" Convenience
+" Tim Pope Land
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-rails'
 
 Plug 'justinmk/vim-sneak'
 
@@ -82,6 +85,8 @@ Plug 'kamykn/spelunker.vim'
 
 " Terminal ease of use
 Plug 'kassio/neoterm'
+
+Plug '~/code/vim-reveal'
 
 " Initialize plugin system
 call plug#end()

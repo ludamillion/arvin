@@ -16,7 +16,7 @@ local on_attach = function(_, bufnr)
   api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
 end
 
-local servers = {'vimls','tsserver', 'cssls', 'html', 'solargraph', 'sumneko_lua', 'diagnosticls'}
+local servers = {'vimls','tsserver', 'cssls', 'solargraph', 'sumneko_lua', 'diagnosticls'}
 for _, server in ipairs(servers) do nvim_lsp[server].setup {
     on_attach = on_attach,
   }

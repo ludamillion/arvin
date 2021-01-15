@@ -2,7 +2,7 @@ scriptencoding utf-8
 source ~/.config/nvim/plugins.vim
 
 let mapleader="\<Space>"
-let maplocalleader = "\\"
+let maplocalleader="\\"
 
 " Set options {{{
 set autoindent                                                " Always set autoindenting on
@@ -26,7 +26,7 @@ set noshowmode
 set noswapfile                                                " Disable swap files
 set nowrap                                                    " Disable soft wrap for lines
 set scrolloff=2                                               " Always show 2 lines above/below the cursor
-set shortmess+=c                                              " Don't give completion messages like 'match 1 of 2' or 'The only match'
+set shortmess+=cI                                              " Don't give completion messages like 'match 1 of 2' or 'The only match'
 set showcmd                                                   " Display incomplete commands
 set signcolumn=yes
 set splitbelow                                                " Vertical splits will be at the bottom
@@ -51,6 +51,8 @@ nnoremap <silent> <c-k> :m-2<cr>==
 xnoremap <silent> <c-k> :m-2<cr>gv=gv
 xnoremap <silent> <c-j> :m'>+<cr>gv=gv
 
+nmap <leader>j Ygccp
+
 " ============================================================================ "
 " ===                           PLUGIN SETUP                               === "
 " ============================================================================ "
@@ -66,6 +68,7 @@ let g:completion_chain_complete_list = [
 
 let g:completion_enable_snippet = 'vim-vsnip'
 let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy', 'all']
+let g:vsnip_snippet_dir = fnamemodify($MYVIMRC, ":h") . '/snippits'
 
 imap <c-j> <Plug>(completion_next_source)
 imap <c-k> <Plug>(completion_prev_source)
@@ -73,10 +76,9 @@ imap <c-k> <Plug>(completion_prev_source)
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
-command! Format execute 'lua vim.lsp.buf.formatting()'
-
-" set omnifunc=v:lua.vim.lsp.omnifunc
-autocmd Filetype ruby,javascript,html,vim setlocal omnifunc=v:lua.vim.lsp.omnifunc
+command! -range Format execute 'lua vim.lsp.buf.formatting()'
+nnoremap <silent> <Leader>f :Format<CR>
+vnoremap <silent> <Leader>f :Format<CR>
 
 " Completion mappings
 set dictionary=/usr/share/dict/words
@@ -158,11 +160,23 @@ let g:auto_save_silent = 1
 " === Pairify === "
 let g:close_pair_key = '<C-c>'
 
+let g:reveal_root_path = '$HOME/Dropbox/reveal.js/' " '$HOME/reveal.js/' will be used if not specified.
+let g:reveal_config = { 'filename': 'reveal'}
+
 " ============================================================================ "
 " ===                                UI                                    === "
 " ============================================================================ "
 
 " Color Scheme and Status Line {{{
+
+" Enable true color support
+if (has("termguicolors"))
+  set termguicolors
+  lua require('colorizer').setup()
+endif
+
+set background=dark
+colorscheme liminal
 
 function! GitInfo()
   let l:longpath = FugitiveGitDir()
@@ -177,7 +191,7 @@ function! GitInfo()
     " We have just encountered a submodule
     let l:repo = l:taildir
   endif
-  return ' ' . l:repo . '@' . l:branch . ' '
+  return ' ' . l:repo . '@' . l:branch
 endfunction
 
 " Function: display errors from Ale in statusline
@@ -188,19 +202,6 @@ endfunction
 "   return l:counts.total == 0 ? '' : printf('[%d/%d]', l:all_non_errors, l:all_errors)
 " endfunction
 
-function! LspStatus() abort
-  let sl = ''
-  if luaeval('not vim.tbl_isempty(vim.lsp.buf_get_clients(0))')
-    let sl.='E:'
-    let sl.='%{luaeval("vim.lsp.diagnostic.get_count(vim.fn.bufnr('%'), [[Error]])")}'
-    let sl.=' W:'
-    let sl.='%{luaeval("vim.lsp.diagnostic.get_count(vim.fn.bufnr('%'), [[Warning]])")}'
-  else
-    let sl.='off'
-  endif
-  return sl
-endfunction
-
 function! LspStatusSymbol() abort
   if luaeval('vim.lsp.buf.server_ready()')
     return '↑'
@@ -209,22 +210,47 @@ function! LspStatusSymbol() abort
   endif
 endfunction
 
+let g:currentmode={
+\ 'n': 'Normal',
+\ 'no': 'N·Operator Pending',
+\ 'v': 'Visual',
+\ 'V': 'V·Line',
+\ '^V': 'V·Block',
+\ 's': 'Select',
+\ 'S': 'S·Line',
+\ '^S': 'S·Block',
+\ 'i': 'Insert',
+\ 'R': 'Replace',
+\ 'Rv': 'V·Replace',
+\ 'c': 'Command',
+\ 'cv': 'Vim Ex',
+\ 'ce': 'Ex',
+\ 'r': 'Prompt',
+\ 'rm': 'More',
+\ 'r?': 'Confirm',
+\ '!': 'Shell',
+\ 't': 'Terminal'}
+"
+" Function: return current mode
+" abort -> function will abort soon as error detected
+function! ModeCurrent() abort
+    let l:modecurrent = mode()
+    " use get() -> fails safely, since ^V doesn't seem to register
+    " 3rd arg is used when return of mode() == 0, which is case with ^V
+    " thus, ^V fails -> returns 0 -> replaced with 'V Block'
+    let l:modelist = get(g:currentmode, l:modecurrent, 'V·Block')
+    let l:current_status_mode = l:modelist
+    return l:current_status_mode
+endfunction
+
 set statusline=
-set statusline+=%.36{GitInfo()}ᓚᘏᗢ\ %t
+set statusline+=%.36{GitInfo()}\ ->\ %t
 set statusline+=%=
-set statusline+=%q%m\[%{&filetype}\|%l:%c\]
-set statusline+=\ LSP\ [%{LspStatus()}\ %{LspStatusSymbol()}]
+set statusline+=ᓚᘏᗢ\ %q%m\[%{ModeCurrent()}]
+set statusline+=[lsp\ %{LspStatusSymbol()}]
 " set statusline+=%#WildMenu#%{LinterStatus()}\ lsp[%{LspStatusSymbol()}]
 
 "}}}
-
-" Enable true color support
-if (has("termguicolors"))
-  set termguicolors
-endif
-
-set background=dark
-colorscheme liminal
 
 " Call method on window enter
 augroup WindowManagement
@@ -299,7 +325,7 @@ let g:sneak#s_next = 1
 " Tab manipulation
 command! TabHomeOnFile execute 'tcd ' . expand('%:h')
 
-nnoremap <leader>td :TabHomeOnFile<CR>
+nnoremap <silent> <leader>td :TabHomeOnFile<CR>
 nnoremap <silent> <leader>tn :$tabnew<CR>
 nnoremap <silent> <leader>tc :tabclose<CR>
 nnoremap <silent> <leader>tm :tabmove<Space><C-r>=input("Where to bub? ")<CR><CR>
@@ -333,8 +359,6 @@ augroup MarkdownEditing
   autocmd!
   autocmd BufWinEnter *.md set wrap nonumber norelativenumber
   autocmd BufWinLeave *.md set nowrap
-
-  lua require('completion').on_attach()
 augroup END
 
 au BufReadPost *.hbs set syntax=handlebars.html
@@ -350,16 +374,6 @@ nnoremap <silent> <leader>p :Clap gfiles<CR>
 nnoremap <silent> <leader>s :Clap grep<CR>
 nnoremap <silent> // :Clap blines<CR>
 nnoremap <silent> ?? :Clap lines<CR>
-
-nnoremap <silent> <Leader>d :Lexplore<CR>
-nnoremap <silent> <Leader>f :Vexplore<CR>
-
-let g:netrw_liststyle = 3
-let g:netrw_browse_split = 4
-let g:netrw_altv = 1
-let g:netrw_winsize = 25
-let g:netrw_banner = 0
-let g:netrw_list_hide = &wildignore
 
 " Toggle line numbers
 nnoremap <silent> <leader>N :call CycleLineNumbers()<cr>
@@ -384,10 +398,11 @@ nnoremap <leader>O O<esc>
 
 nnoremap <silent> <leader>ev :$tabnew $MYVIMRC<cr>
 
-command! RefreshConfig source $MYVIMRC <bar> echo "Refreshed vimrc!"
+command! RefreshConfig source $MYVIMRC <bar> echo "Sourced vimrc!"
 nnoremap <silent> <leader>sv :RefreshConfig<cr>
 
-nnoremap <silent> <leader>sf :so %<cr>
+command! SourceBufferFile source % <bar> echo "Sourced current file!"
+nnoremap <silent> <leader>sf :SourceBufferFile<cr>
 
 nnoremap <silent> <leader>+ :tab split<CR>
 nnoremap <leader>= <C-w>=
@@ -459,6 +474,13 @@ endfunction
 " Toggle background
 nnoremap <silent> <leader>bg :call BackgroundToggle()<CR>
 
+nnoremap <silent> <leader>c :ColorizerToggle<CR>
+
+nnoremap <leader>df :diffget //2<CR>
+nnoremap <leader>dj :diffget //3<CR>
+
+nnoremap <localleader>- :Rexplore<CR>
+
 " ============================================================================ "
 " ===                                 MISC.                                === "
 " ============================================================================ "
@@ -466,8 +488,8 @@ nnoremap <silent> <leader>bg :call BackgroundToggle()<CR>
 augroup TerminalBehavior
   " Start terminal in insert mode
   autocmd!
-  au FileType neoterm :startinsert
-  au FileType neoterm :stopinsert
+  autocmd BufWinEnter,WinEnter term://* startinsert
+  autocmd BufLeave term://* stopinsert
   nnoremap <silent> <leader>t <cmd>Ttoggle<CR>
   nnoremap <silent> <leader>T <cmd>:$tab Tnew<CR>
 
@@ -476,7 +498,7 @@ augroup TerminalBehavior
   autocmd Filetype neoterm setlocal nonumber norelativenumber
 
   " Quickly drop back to normal mode in terminal mode
-  tnoremap <c-g> <C-\><C-n>
+  tnoremap <esc><esc> <C-\><C-n>
 
   " Move between windows exactly the same way as usual
   tnoremap <silent> <C-w>h <C-\><C-n>:call WinMove('h')<cr>
