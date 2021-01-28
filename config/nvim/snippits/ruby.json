@@ -1,0 +1,9 @@
+{
+  "Insert pry binding": {
+    "prefix": "pry",
+    "body": [
+      "binding.pry"
+    ],
+    "description": "Inserts a binding.pry expression for debugging"
+  }
+}

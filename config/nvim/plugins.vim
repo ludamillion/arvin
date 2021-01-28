@@ -23,8 +23,9 @@ call plug#begin('~/.config/nvim/plugged')
 " === Infrastructure Plugins ===
 "
 " Language Server Protocol and completion
-Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/completion-nvim'
+Plug 'neovim/nvim-lspconfig'
+Plug 'alexaandru/nvim-lspupdate'
 
 " Linting
 Plug 'dense-analysis/ale'
@@ -35,9 +36,11 @@ Plug 'hrsh7th/vim-vsnip-integ'
 
 " Fuzzy finding
 Plug 'junegunn/fzf', { 'do': './install --bin' }
-Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary' }
+Plug 'junegunn/fzf.vim'
 
 Plug 'gcmt/taboo.vim'
+
+Plug 'lambdalisue/fern.vim'
 
 " === Git Plugins === "
 " Enable git changes to be shown in sign column
@@ -52,13 +55,6 @@ Plug 'sheerun/vim-polyglot'
 Plug 'joukevandermaas/vim-ember-hbs'
 Plug 'mattn/emmet-vim'
 
-Plug 'junegunn/goyo.vim'
-
-" Colorscheme
-Plug '~/code/liminal'
-
-Plug 'norcalli/nvim-colorizer.lua'
-
 " Note taking
 Plug 'fcpg/vim-waikiki'
 Plug 'alok/notational-fzf-vim'
@@ -69,10 +65,10 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-dispatch'
-Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-rails'
 
-Plug 'justinmk/vim-sneak'
+" Smarter f/F t/T
+Plug 'rhysd/clever-f.vim'
 
 " Auto save
 Plug '907th/vim-auto-save'
@@ -86,7 +82,11 @@ Plug 'kamykn/spelunker.vim'
 " Terminal ease of use
 Plug 'kassio/neoterm'
 
+" Local things I'm working on
 Plug '~/code/vim-reveal'
+"
+" Colorscheme
+Plug '~/code/liminal'
 
 " Initialize plugin system
 call plug#end()

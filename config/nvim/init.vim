@@ -77,8 +77,6 @@ inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 command! -range Format execute 'lua vim.lsp.buf.formatting()'
-nnoremap <silent> <Leader>f :Format<CR>
-vnoremap <silent> <Leader>f :Format<CR>
 
 " Completion mappings
 set dictionary=/usr/share/dict/words
@@ -129,7 +127,7 @@ let g:ale_lint_on_insert_leave = 0
 
 " === Clap === "
 
-let g:clap_layout = { 'relative': 'editor' }
+" let g:clap_layout = { 'relative': 'editor' }
 
 "Close preview window when completion is done.
 autocmd! CompleteDone * if pumvisible() == 1 | pclose | endif
@@ -163,6 +161,40 @@ let g:close_pair_key = '<C-c>'
 let g:reveal_root_path = '$HOME/Dropbox/reveal.js/' " '$HOME/reveal.js/' will be used if not specified.
 let g:reveal_config = { 'filename': 'reveal'}
 
+let g:fern#disable_default_mappings   = 1
+let g:fern#disable_drawer_auto_quit   = 1
+let g:fern#disable_viewer_hide_cursor = 1
+
+" cribbed from https://bluz71.github.io/2017/05/21/vim-plugins-i-like.html
+function! FernInit() abort
+  nmap <buffer><expr>
+        \ <Plug>(fern-my-open-expand-collapse)
+        \ fern#smart#leaf(
+        \   "\<Plug>(fern-action-open:select)",
+        \   "\<Plug>(fern-action-expand)",
+        \   "\<Plug>(fern-action-collapse)",
+        \ )
+  nmap <buffer> <CR> <Plug>(fern-my-open-expand-collapse)
+  nmap <buffer> <2-LeftMouse> <Plug>(fern-my-open-expand-collapse)
+  nmap <buffer> m <Plug>(fern-action-mark:toggle)j
+  nmap <buffer> N <Plug>(fern-action-new-file)
+  nmap <buffer> K <Plug>(fern-action-new-dir)
+  nmap <buffer> D <Plug>(fern-action-remove)
+  nmap <buffer> V <Plug>(fern-action-move)
+  nmap <buffer> R <Plug>(fern-action-rename)
+  nmap <buffer> s <Plug>(fern-action-open:split)
+  nmap <buffer> v <Plug>(fern-action-open:vsplit)
+  nmap <buffer> r <Plug>(fern-action-reload)
+  nmap <buffer> <nowait> d <Plug>(fern-action-hidden:toggle)
+  nmap <buffer> <nowait> < <Plug>(fern-action-leave)
+  nmap <buffer> <nowait> > <Plug>(fern-action-enter)
+endfunction
+
+augroup FernEvents
+  autocmd!
+  autocmd FileType fern call FernInit()
+augroup END
+
 " ============================================================================ "
 " ===                                UI                                    === "
 " ============================================================================ "
@@ -172,7 +204,6 @@ let g:reveal_config = { 'filename': 'reveal'}
 " Enable true color support
 if (has("termguicolors"))
   set termguicolors
-  lua require('colorizer').setup()
 endif
 
 set background=dark
@@ -315,13 +346,6 @@ noremap H ^
 noremap L $
 vnoremap L g_
 
-map f <Plug>Sneak_f
-map F <Plug>Sneak_F
-map t <Plug>Sneak_t
-map T <Plug>Sneak_T
-
-let g:sneak#s_next = 1
-"
 " Tab manipulation
 command! TabHomeOnFile execute 'tcd ' . expand('%:h')
 
@@ -362,18 +386,19 @@ augroup MarkdownEditing
 augroup END
 
 au BufReadPost *.hbs set syntax=handlebars.html
+
 " ============================================================================ "
 " ===                             KEY MAPPINGS                             === "
 " ============================================================================ "
 "
 " === FZF shorcuts === "
-" command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
+command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
 
-nnoremap <silent> <leader>, :Clap buffers<CR>
-nnoremap <silent> <leader>p :Clap gfiles<CR>
-nnoremap <silent> <leader>s :Clap grep<CR>
-nnoremap <silent> // :Clap blines<CR>
-nnoremap <silent> ?? :Clap lines<CR>
+nnoremap <silent> <leader>, :Buffers<CR>
+nnoremap <silent> <leader>p :GFiles<CR>
+nnoremap <silent> <leader>s :Rg<CR>
+nnoremap <silent> // :BLines<CR>
+nnoremap <silent> ?? :Lines<CR>
 
 " Toggle line numbers
 nnoremap <silent> <leader>N :call CycleLineNumbers()<cr>
@@ -451,11 +476,6 @@ nnoremap <c-PageDown> :tabnext<cr>
 vnoremap < <gv
 vnoremap > >gv
 
-" Feature toggles
-
-let g:goyo_width = 120
-nnoremap <silent> <leader>F :Goyo<cr>
-
 " === Spelunker ===
 nnoremap <silent> <leader>zn :call spelunker#jump_next()<cr>
 nnoremap <silent> <leader>zp :call spelunker#jump_prev()<cr>
@@ -479,7 +499,9 @@ nnoremap <silent> <leader>c :ColorizerToggle<CR>
 nnoremap <leader>df :diffget //2<CR>
 nnoremap <leader>dj :diffget //3<CR>
 
-nnoremap <localleader>- :Rexplore<CR>
+noremap <silent> <leader>d :Fern . -drawer -width=40 -toggle<CR><C-w>=
+noremap <silent> <leader>f :Fern . -drawer -reveal=% -width=35<CR><C-w>=
+noremap <silent> <leader>. :Fern %:h -drawer -width=35<CR><C-w>=
 
 " ============================================================================ "
 " ===                                 MISC.                                === "
@@ -583,5 +605,9 @@ function! LoadSession(...) abort
 
   exec 'so ' . g:sessions_dir . '/' . name
 endfunction
+
+nnoremap <silent> <leader>ss :call SaveSession()<cr>
+nnoremap <silent> <leader>sl :call LoadSession()<cr>
+
 
 " vim:foldmethod=marker:foldlevel=0

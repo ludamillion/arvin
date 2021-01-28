@@ -8,6 +8,8 @@ local on_attach = function(_, bufnr)
   completion.on_attach()
   local opts = { noremap=true, silent=true }
 
+  -- vim.b.omnifunc = lsp.omnifunc
+
   api.nvim_buf_set_keymap(bufnr, 'n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
   api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
   api.nvim_buf_set_keymap(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
@@ -16,7 +18,8 @@ local on_attach = function(_, bufnr)
   api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
 end
 
-local servers = {'vimls','tsserver', 'cssls', 'solargraph', 'sumneko_lua', 'diagnosticls'}
+-- local servers = {'vimls','tsserver', 'cssls', 'solargraph', 'sumneko_lua', 'diagnosticls'}
+local servers = {'vimls','tsserver', 'cssls', 'solargraph', 'diagnosticls'}
 for _, server in ipairs(servers) do nvim_lsp[server].setup {
     on_attach = on_attach,
   }
