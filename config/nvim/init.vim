@@ -4,40 +4,7 @@ source ~/.config/nvim/plugins.vim
 let mapleader="\<Space>"
 let maplocalleader="\\"
 
-" Set options {{{
-set autoindent                                                " Always set autoindenting on
-set autoread                                                  " Automatically read changes in the file
-set autowrite                                                 " automatically write files when switching buffers
-set backspace=indent,eol,start                                " Make backspace behave properly in insert mode
-set clipboard=unnamedplus                                     " Use system clipboard; requires has('unnamedplus') to be 1
-set completeopt=menu,menuone,noinsert,noselect
-set foldmethod=syntax foldnestmax=10 nofoldenable foldlevel=1 " Fold by syntax up to depth 10 but not by default
-set grepprg=rg\ --vimgrep                                     " User Ripgrep for grep commands
-set hidden                                                    " Hide buffers instead of closing them even if they contain unwritten changes
-set ignorecase smartcase                                      " Searches are case insensitive...unless they contain at least one capital letter
-set inccommand=split                                          " Show split and live preview when doing :substitution
-set incsearch                                                 " Incremental search highlight
-set lazyredraw                                                " Lazily redraw screen while executing macros, and other commands
-set list
-set listchars=tab:⊢\ ,trail:―,extends:…,precedes:…
-set matchpairs+=<:>
-set number relativenumber                                     " Show relative line numbers by default
-set noshowmode
-set noswapfile                                                " Disable swap files
-set nowrap                                                    " Disable soft wrap for lines
-set scrolloff=2                                               " Always show 2 lines above/below the cursor
-set shortmess+=cI                                              " Don't give completion messages like 'match 1 of 2' or 'The only match'
-set showcmd                                                   " Display incomplete commands
-set signcolumn=yes
-set splitbelow                                                " Vertical splits will be at the bottom
-set splitright                                                " Horizontal splits will be to the right
-set tabstop=2 shiftwidth=2 softtabstop=2 expandtab            " Use two spaces for indentation
-set textwidth=120
-set ttimeout                                                  " Time waited for key press(es) to complete...
-set ttimeoutlen=10 timeoutlen=1000                            "  ...makes for a faster key response
-set wildmenu                                                  " Better menu with completion in command mode
-set wildmode=longest:full,full
-" }}}
+source $HOME/.config/nvim/modules/options.vim
 
 nnoremap ! :!
 nnoremap <leader>w :w<cr>
@@ -209,7 +176,7 @@ endif
 set background=dark
 colorscheme liminal
 
-function! GitInfo()
+function! s:GitInfo()
   let l:longpath = FugitiveGitDir()
   let l:branch = FugitiveHead()
   if empty(l:branch)
@@ -225,61 +192,7 @@ function! GitInfo()
   return ' ' . l:repo . '@' . l:branch
 endfunction
 
-" Function: display errors from Ale in statusline
-" function! LinterStatus() abort
-"   let l:counts = ale#statusline#Count(bufnr(''))
-"   let l:all_errors = l:counts.error + l:counts.style_error
-"   let l:all_non_errors = l:counts.total - l:all_errors
-"   return l:counts.total == 0 ? '' : printf('[%d/%d]', l:all_non_errors, l:all_errors)
-" endfunction
-
-function! LspStatusSymbol() abort
-  if luaeval('vim.lsp.buf.server_ready()')
-    return '↑'
-  else
-    return '↓'
-  endif
-endfunction
-
-let g:currentmode={
-\ 'n': 'Normal',
-\ 'no': 'N·Operator Pending',
-\ 'v': 'Visual',
-\ 'V': 'V·Line',
-\ '^V': 'V·Block',
-\ 's': 'Select',
-\ 'S': 'S·Line',
-\ '^S': 'S·Block',
-\ 'i': 'Insert',
-\ 'R': 'Replace',
-\ 'Rv': 'V·Replace',
-\ 'c': 'Command',
-\ 'cv': 'Vim Ex',
-\ 'ce': 'Ex',
-\ 'r': 'Prompt',
-\ 'rm': 'More',
-\ 'r?': 'Confirm',
-\ '!': 'Shell',
-\ 't': 'Terminal'}
-"
-" Function: return current mode
-" abort -> function will abort soon as error detected
-function! ModeCurrent() abort
-    let l:modecurrent = mode()
-    " use get() -> fails safely, since ^V doesn't seem to register
-    " 3rd arg is used when return of mode() == 0, which is case with ^V
-    " thus, ^V fails -> returns 0 -> replaced with 'V Block'
-    let l:modelist = get(g:currentmode, l:modecurrent, 'V·Block')
-    let l:current_status_mode = l:modelist
-    return l:current_status_mode
-endfunction
-
-set statusline=
-set statusline+=%.36{GitInfo()}\ ->\ %t
-set statusline+=%=
-set statusline+=ᓚᘏᗢ\ %q%m\[%{ModeCurrent()}]
-set statusline+=[lsp\ %{LspStatusSymbol()}]
-" set statusline+=%#WildMenu#%{LinterStatus()}\ lsp[%{LspStatusSymbol()}]
+source $HOME/.config/nvim/modules/statusline.vim
 
 "}}}
 
@@ -330,7 +243,7 @@ nnoremap Q @q
 
 " Substitute
 nnoremap <c-s> :%s/\v
-vnoremap <c-s> :s/\v
+vnoremap <c-s> :s/\%V\v
 
 " Keep search matches in the middle of the window.
 nnoremap n nzzzv
@@ -503,6 +416,10 @@ noremap <silent> <leader>d :Fern . -drawer -width=40 -toggle<CR><C-w>=
 noremap <silent> <leader>f :Fern . -drawer -reveal=% -width=35<CR><C-w>=
 noremap <silent> <leader>. :Fern %:h -drawer -width=35<CR><C-w>=
 
+nnoremap <silent><leader>v :Vista!!<cr>
+
+let g:vista_sidebar_width=40
+
 " ============================================================================ "
 " ===                                 MISC.                                === "
 " ============================================================================ "
@@ -530,7 +447,7 @@ augroup TerminalBehavior
 augroup END
 
 let g:neoterm_default_mod='belowright' " open terminal in bottom split
-let g:neoterm_size=16 " terminal split size
+let g:neoterm_size=24 " terminal split size
 let g:neoterm_autoscroll=1 " scroll to the bottom when running a command
 nnoremap <leader><cr> :TREPLSendLine<cr>
 vnoremap <leader><cr> :TREPLSendSelection<cr>
@@ -570,6 +487,8 @@ endfunction
 
 nnoremap <silent> <leader>l :call ListToggle('loc')<cr>
 nnoremap <silent> <leader>q :call ListToggle('quick')<cr>
+
+nnoremap <silent> <leader>L :nohlsearch<cr>
 
 autocmd! InsertEnter * set nohlsearch nocursorline
 autocmd! InsertLeave * set cursorline

@@ -22,10 +22,12 @@ call plug#begin('~/.config/nvim/plugged')
 
 " === Infrastructure Plugins ===
 "
-" Language Server Protocol and completion
-Plug 'nvim-lua/completion-nvim'
+" Language Server Protocol
 Plug 'neovim/nvim-lspconfig'
 Plug 'alexaandru/nvim-lspupdate'
+
+" Completion
+Plug 'hrsh7th/nvim-compe'
 
 " Linting
 Plug 'dense-analysis/ale'
@@ -40,6 +42,7 @@ Plug 'junegunn/fzf.vim'
 
 Plug 'gcmt/taboo.vim'
 
+Plug 'liuchengxu/vista.vim'
 Plug 'lambdalisue/fern.vim'
 
 " === Git Plugins === "
@@ -53,7 +56,6 @@ Plug 'sheerun/vim-polyglot'
 
 " Ember HTMLbars syntax highlighting
 Plug 'joukevandermaas/vim-ember-hbs'
-Plug 'mattn/emmet-vim'
 
 " Note taking
 Plug 'fcpg/vim-waikiki'
@@ -64,7 +66,7 @@ Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-rails'
 
 " Smarter f/F t/T

@@ -1,11 +1,9 @@
 local nvim_lsp = require('lspconfig')
-local completion = require('completion')
 local api = vim.api
 local lsp = vim.lsp
 local fn  = vim.fn
 
 local on_attach = function(_, bufnr)
-  completion.on_attach()
   local opts = { noremap=true, silent=true }
 
   -- vim.b.omnifunc = lsp.omnifunc
@@ -19,7 +17,7 @@ local on_attach = function(_, bufnr)
 end
 
 -- local servers = {'vimls','tsserver', 'cssls', 'solargraph', 'sumneko_lua', 'diagnosticls'}
-local servers = {'vimls','tsserver', 'cssls', 'solargraph', 'diagnosticls'}
+local servers = {'vimls','tsserver', 'cssls', 'html', 'solargraph', 'diagnosticls'}
 for _, server in ipairs(servers) do nvim_lsp[server].setup {
     on_attach = on_attach,
   }
