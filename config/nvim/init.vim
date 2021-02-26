@@ -309,6 +309,7 @@ command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-hea
 
 nnoremap <silent> <leader>, :Buffers<CR>
 nnoremap <silent> <leader>p :GFiles<CR>
+nnoremap <silent> <leader>P :Files<CR>
 nnoremap <silent> <leader>s :Rg<CR>
 nnoremap <silent> // :BLines<CR>
 nnoremap <silent> ?? :Lines<CR>
