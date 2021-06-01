@@ -51,7 +51,7 @@ nvim_lsp.diagnosticls.setup{
           [1] = 'warning'
         }
       },
-      stylelint ={
+      stylelint = {
         sourceName = 'stylelint',
         command = './node_modules/.bin/stylelint',
         rootPatterns = {
@@ -72,6 +72,37 @@ nvim_lsp.diagnosticls.setup{
           error = 'error',
           warning = 'warning'
         }
+      },
+      rubocop = {
+        command = "bundle",
+        sourceName = "rubocop",
+        debounce = 100,
+        args = {
+          "exec",
+          "rubocop",
+          "--format",
+          "json",
+          "--force-exclusion",
+          "--stdin",
+          "%filepath"
+        },
+        parseJson = {
+          errorsRoot = "files[0].offenses",
+          line = "location.start_line",
+          endLine = "location.last_line",
+          column = "location.start_column",
+          endColumn = "location.end_column",
+          message = "[${cop_name}] ${message}",
+          security = "severity"
+        },
+        securities = {
+          fatal = "error",
+          error = "error",
+          warning = "warning",
+          convention = "info",
+          refactor = "info",
+          info = "info"
+        }
       }
     },
     filetypes = {
@@ -87,9 +118,11 @@ lsp.handlers['textDocument/publishDiagnostics'] = lsp.with(
   lsp.diagnostic.on_publish_diagnostics, {
     -- This will disable virtual text, like doing:
     -- let g:diagnostic_enable_virtual_text = 0
-    virtual_text = {
-      prefix = ""
-    },
+    -- virtual_text = {
+    --   prefix = "⨳",
+    --   spacing = 8
+    -- },
+    virtual_text = false,
 
     -- This is similar to:
     -- let g:diagnostic_show_sign = 1
@@ -103,31 +136,34 @@ lsp.handlers['textDocument/publishDiagnostics'] = lsp.with(
   }
   )
 
+vim.cmd [[autocmd CursorHold * lua vim.lsp.diagnostic.show_line_diagnostics()]]
+vim.cmd [[autocmd CursorHoldI * silent! lua vim.lsp.buf.signature_help()]]
+
 fn.sign_define(
   "LspDiagnosticsSignError",
   {
     text = "",
     texthl = "LspDiagnosticsSignError"
   }
-)
+  )
 fn.sign_define(
   "LspDiagnosticsSignWarning",
   {
-    text = "",
+    text = "!",
     texthl = "LspDiagnosticsSignWarning"
   }
-)
+  )
 fn.sign_define(
   "LspDiagnosticsSignInformation",
   {
-    text = "",
+    text = "?",
     texthl = "LspDiagnosticsSignInformation"
   }
-)
+  )
 fn.sign_define(
   "LspDiagnosticsSignHint",
   {
     text = "➤",
     texthl = "LspDiagnosticsSignHint"
   }
-)
+  )

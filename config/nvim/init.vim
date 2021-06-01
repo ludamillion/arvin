@@ -45,6 +45,11 @@ inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 command! -range Format execute 'lua vim.lsp.buf.formatting()'
 
+autocmd! CursorHold * execute 'lua vim.lsp.diagnostic.show_line_diagnostics({show_header = false})'
+autocmd! CursorHoldI * silent! lua vim.lsp.buf.signature_help()
+
+nnoremap <c-l> :lua vim.lsp.diagnostic.show_line_diagnostics({show_header = false})<cr>
+
 " Completion mappings
 set dictionary=/usr/share/dict/words
 
@@ -106,14 +111,8 @@ imap <expr> <C-l> vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
 smap <expr> <C-l> vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
 
 " === Notes === 
-" let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki', 'syntax': 'markdown', 'ext': '.md'}]
-let g:waikiki_wiki_roots = ['~/Dropbox/vimwiki']
-let g:waikiki_default_maps = 1
-
-command! OpenWikiTab execute('$tabedit ' . g:waikiki_wiki_roots[0] . '/index.md')
-
-nnoremap <silent> <leader>ww :OpenWikiTab<CR>
-  " exec 'mksession! ' . g:sessions_dir . '/' . name
+let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki', 'syntax': 'markdown', 'ext': '.md'}]
+let g:vimwiki_markdown_link_ext = 1
 
 let g:nv_search_paths = ['~/Dropbox/vimwiki', '~/wiki']
 nnoremap <silent> <leader>n :NV<cr>
@@ -173,7 +172,6 @@ if (has("termguicolors"))
   set termguicolors
 endif
 
-set background=dark
 colorscheme liminal
 
 function! s:GitInfo()
@@ -189,7 +187,7 @@ function! s:GitInfo()
     " We have just encountered a submodule
     let l:repo = l:taildir
   endif
-  return ' ' . l:repo . '@' . l:branch
+  return l:repo . '@' . l:branch
 endfunction
 
 source $HOME/.config/nvim/modules/statusline.vim
@@ -298,7 +296,9 @@ augroup MarkdownEditing
   autocmd BufWinLeave *.md set nowrap
 augroup END
 
-au BufReadPost *.hbs set syntax=handlebars.html
+" === Goyo === "
+let g:goyo_width = 96
+nnoremap <silent> <leader>Z :Goyo<CR>
 
 " ============================================================================ "
 " ===                             KEY MAPPINGS                             === "
@@ -308,8 +308,8 @@ au BufReadPost *.hbs set syntax=handlebars.html
 command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
 
 nnoremap <silent> <leader>, :Buffers<CR>
-nnoremap <silent> <leader>p :GFiles<CR>
-nnoremap <silent> <leader>P :Files<CR>
+nnoremap <silent> <leader>P :GFiles<CR>
+nnoremap <silent> <leader>p :Files<CR>
 nnoremap <silent> <leader>s :Rg<CR>
 nnoremap <silent> // :BLines<CR>
 nnoremap <silent> ?? :Lines<CR>
@@ -350,7 +350,7 @@ nnoremap ; :
 
 " Remember that ; and , where used to repeat character searches
 " fix command that you shadowed with the prevoius one
-nnoremap <Leader>; ;
+nnoremap <leader>; ;
 
 " Open :help in a new tab
 command! -nargs=? -complete=help Helptab $tab help <args>
@@ -497,14 +497,16 @@ autocmd! InsertLeave * set cursorline
 autocmd! FileType help wincmd H
 
 nnoremap <silent> <leader>hg :call SynStack()<CR>
-function! SynStack()
-  if !exists("*synstack")
-    return
-  endif
-  echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfunc
+function! SynStack ()
+    for i1 in synstack(line("."), col("."))
+        let i2 = synIDtrans(i1)
+        let n1 = synIDattr(i1, "name")
+        let n2 = synIDattr(i2, "name")
+        echo n1 "->" n2
+    endfor
+endfunction endfunc
 
-let g:sessions_dir = '~/Dropbox/vim-sessions'
+let g:sessions_dir = '$HOME/vim-sessions/'
 
 function! SaveSession(...) abort
   if a:0 > 0
@@ -513,7 +515,7 @@ function! SaveSession(...) abort
     let name = GitInfo()
   endif
 
-  exec 'mksession! ' . g:sessions_dir . '/' . name
+  exec 'mksession! ' . g:sessions_dir . name
 endfunction
 
 function! LoadSession(...) abort
@@ -523,7 +525,7 @@ function! LoadSession(...) abort
     let name = GitInfo()
   endif
 
-  exec 'so ' . g:sessions_dir . '/' . name
+  exec 'so ' . g:sessions_dir . name
 endfunction
 
 nnoremap <silent> <leader>ss :call SaveSession()<cr>

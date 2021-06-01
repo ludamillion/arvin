@@ -42,7 +42,7 @@ set listchars=tab:⊢\ ,trail:―,extends:…,precedes:…
 set matchpairs+=<:>
 
 " Show relative line numbers by default
-set number relativenumber
+set nonumber norelativenumber
 set noshowmode
 
 

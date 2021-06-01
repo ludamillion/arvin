@@ -30,6 +30,27 @@ function! LspStatusSymbol() abort
   endif
 endfunction
 
+function! LspStatus() abort
+  let sl = ''
+  if luaeval('not vim.tbl_isempty(vim.lsp.buf_get_clients(0))')
+    let sl.='<'
+    let sl.=luaeval("vim.lsp.diagnostic.get_count(0, [[Error]])")
+    let sl.='⋅'
+    let sl.=luaeval("vim.lsp.diagnostic.get_count(0, [[Warning]])")
+    let sl.='⋅'
+    let sl.=luaeval("vim.lsp.diagnostic.get_count(0, [[Information]])")
+    let sl.='>'
+  endif
+
+  return sl
+endfunction
+
+function! LspDiagnostics() abort
+  let l:diagnostics = luaeval('vim.lsp.diagnostic.get_count()')
+
+  return l:diagnostics
+endfunction
+
 let s:currentmode={
 \ 'n': 'Normal',
 \ 'no': 'N·Operator Pending',
@@ -64,9 +85,9 @@ function! ModeCurrent() abort
 endfunction
 
 set statusline=
-set statusline+=%.36{GitInfo()}\ ->\ %t
+set statusline+=%1*\ %.36{GitInfo()}\ ->\ %t:%l\ %*
 set statusline+=%=
 set statusline+=ᓚᘏᗢ\ %q%m\[%{ModeCurrent()}]
-set statusline+=[lsp\ %{LspStatusSymbol()}]
+set statusline+=[lsp\ %{LspStatusSymbol()}\ %{LspStatus()}]
 " set statusline+=%#WildMenu#%{LinterStatus()}\ lsp[%{LspStatusSymbol()}]
 

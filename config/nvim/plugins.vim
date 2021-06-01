@@ -24,13 +24,12 @@ call plug#begin('~/.config/nvim/plugged')
 "
 " Language Server Protocol
 Plug 'neovim/nvim-lspconfig'
-Plug 'alexaandru/nvim-lspupdate'
 
 " Completion
 Plug 'hrsh7th/nvim-compe'
 
 " Linting
-Plug 'dense-analysis/ale'
+" Plug 'dense-analysis/ale'
 
 " Snippit support
 Plug 'hrsh7th/vim-vsnip'
@@ -42,7 +41,6 @@ Plug 'junegunn/fzf.vim'
 
 Plug 'gcmt/taboo.vim'
 
-Plug 'liuchengxu/vista.vim'
 Plug 'lambdalisue/fern.vim'
 
 " === Git Plugins === "
@@ -50,16 +48,13 @@ Plug 'lambdalisue/fern.vim'
 Plug 'mhinz/vim-signify'
 Plug 'tpope/vim-fugitive'
 
-" Not exactly minimal but I don't want to have to think about language support
-" right now
+" Not exactly minimal but I don't want to have to think about language support right now
 Plug 'sheerun/vim-polyglot'
 
-" Ember HTMLbars syntax highlighting
-Plug 'joukevandermaas/vim-ember-hbs'
-
 " Note taking
-Plug 'fcpg/vim-waikiki'
+Plug 'vimwiki/vimwiki'
 Plug 'alok/notational-fzf-vim'
+Plug 'tools-life/taskwiki'
 
 " Tim Pope Land
 Plug 'tpope/vim-abolish'
@@ -83,6 +78,9 @@ Plug 'kamykn/spelunker.vim'
 
 " Terminal ease of use
 Plug 'kassio/neoterm'
+
+" Zen mode
+Plug 'junegunn/goyo.vim'
 
 " Local things I'm working on
 Plug '~/code/vim-reveal'

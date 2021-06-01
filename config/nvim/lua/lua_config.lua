@@ -8,9 +8,10 @@ require('compe').setup {
   allow_prefix_unmatch = false;
 
   source = {
-    path = true;
     buffer = true;
-    vsnip = true;
     nvim_lsp = true;
+    path = true;
+    spell = true;
+    vsnip = true;
   };
 }
